@@ -1,10 +1,11 @@
+```json
 {
   "annonces": [
     {
       "actif": true,
       "type": "promo",
       "eyebrow": "Offre du moment",
-      "titre": "Mélange boul",
+      "titre": "Pour tous les sacs",
       "accent": "à l'achat de 2 sacs",
       "prix": "10% OFF",
       "description": "Disponible en boutique et en ligne cette semaine.",
@@ -27,7 +28,7 @@
       "type": "evenement",
       "eyebrow": "Événement",
       "titre": "Atelier barista",
-      "accent": "latte art",
+      "accent": "Latte art",
       "prix": "Samedi 20h",
       "description": "Places limitées · Réservation en boutique ou par téléphone.",
       "date_debut": "",
@@ -35,3 +36,4 @@
     }
   ]
 }
+```
