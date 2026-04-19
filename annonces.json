@@ -1,0 +1,37 @@
+{
+  "annonces": [
+    {
+      "actif": true,
+      "type": "promo",
+      "eyebrow": "Offre du moment",
+      "titre": "Mélange Andy",
+      "accent": "à l'achat de 2 sacs",
+      "prix": "10% OFF",
+      "description": "Disponible en boutique et en ligne cette semaine.",
+      "date_debut": "2026-04-19",
+      "date_fin": "2026-04-26"
+    },
+    {
+      "actif": true,
+      "type": "arrivage",
+      "eyebrow": "Nouvel arrivage",
+      "titre": "Brésil Fazenda",
+      "accent": "São Luiz",
+      "prix": "28$",
+      "description": "Notes de cacao, noisette grillée et fruits secs. Torréfié lundi.",
+      "date_debut": "",
+      "date_fin": ""
+    },
+    {
+      "actif": false,
+      "type": "evenement",
+      "eyebrow": "Événement",
+      "titre": "Atelier barista",
+      "accent": "latte art",
+      "prix": "Samedi 20h",
+      "description": "Places limitées · Réservation en boutique ou par téléphone.",
+      "date_debut": "",
+      "date_fin": ""
+    }
+  ]
+}
