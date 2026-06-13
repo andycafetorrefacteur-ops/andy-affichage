@@ -26,11 +26,16 @@ $BASE  = if ($env:CLOVER_BASE)  { $env:CLOVER_BASE }  else { "https://api.clover
 # (sera remplacee par tes vrais articles)
 if (-not $Items -or $Items.Count -eq 0) {
   $Items = @(
-    "Cappuccino",
-    "Latte",
-    "Espresso",
-    "Americano",
-    "Chocolat chaud"
+    "Cappuccino - GRAND - lait d'avoine - +2 shots - sirop caramel - extra chaud",
+    "Latte - lait de soya - sirop vanille - DECA - 1 sucre",
+    "Matcha latte - lait d'amande - sirop noisette - extra mousse",
+    "Dirty chai - GRAND - +1 shot - lait d'avoine - extra epices",
+    "Mocha - sans sucre - creme fouettee - extra chocolat",
+    "Flat White - lait entier - double ristretto",
+    "Chai latte - GRAND - lait d'avoine - sirop citrouille",
+    "Bubble Tea - mangue - bulles tapioca - peu de glace",
+    "Bagel - sesame - fromage a la creme + bacon + oeuf",
+    "Americano - allonge - DECA - 2 cremes"
   )
 }
 # -----------------------------------------
@@ -66,14 +71,14 @@ try {
 
   # 1) Commande avec titre DOORDASH
   $order = Invoke-Clover -Method Post -Path "/v3/merchants/$MID/orders" `
-            -BodyObj @{ state = "open"; title = "DOORDASH"; note = "*** COMMANDE DOORDASH - A PREPARER MAINTENANT ***" }
+            -BodyObj @{ state = "open"; title = "DOORDASH RAMASSAGE"; note = "*** DOORDASH - RAMASSAGE - A PREPARER MAINTENANT - LE CLIENT EST EN ROUTE ***" }
   $orderId = $order.id
   if (-not $orderId) { throw "Echec creation commande (verifie token / permissions Orders)." }
   Write-Host ("Commande creee : {0}" -f $orderId)
 
   # 2) Banniere bien visible en haut des articles
   Invoke-Clover -Method Post -Path "/v3/merchants/$MID/orders/$orderId/line_items" `
-    -BodyObj @{ name = ">>>>> DOORDASH - $Qty X TOUT <<<<<"; price = 0 } | Out-Null
+    -BodyObj @{ name = ">>> DOORDASH RAMASSAGE - $Qty X TOUT <<<"; price = 0 } | Out-Null
 
   # 3) Qty exemplaires de chaque article
   foreach ($it in $Items) {
