@@ -56,15 +56,36 @@ function Assert-Config {
 }
 
 function Invoke-Clover {
-  param([string]$Method, [string]$Path, $BodyObj)
+  param([string]$Method, [string]$Path, $BodyObj, [string]$Json)
   $uri = "$BASE$Path"
   $headers = @{ Authorization = "Bearer $TOKEN" }
-  if ($null -ne $BodyObj) {
-    $json  = $BodyObj | ConvertTo-Json -Depth 5 -Compress
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
-    return Invoke-RestMethod -Method $Method -Uri $uri -Headers $headers -Body $bytes -ContentType "application/json; charset=utf-8"
+  $body = $null; $ct = $null
+  if ($Json) {
+    $body = [System.Text.Encoding]::UTF8.GetBytes($Json)
+    $ct   = "application/json; charset=utf-8"
   }
-  return Invoke-RestMethod -Method $Method -Uri $uri -Headers $headers
+  elseif ($null -ne $BodyObj) {
+    $j    = $BodyObj | ConvertTo-Json -Depth 6 -Compress
+    $body = [System.Text.Encoding]::UTF8.GetBytes($j)
+    $ct   = "application/json; charset=utf-8"
+  }
+  for ($attempt = 1; $attempt -le 6; $attempt++) {
+    try {
+      if ($body) { return Invoke-RestMethod -Method $Method -Uri $uri -Headers $headers -Body $body -ContentType $ct }
+      else       { return Invoke-RestMethod -Method $Method -Uri $uri -Headers $headers }
+    }
+    catch {
+      $code = $null
+      try { $code = [int]$_.Exception.Response.StatusCode } catch {}
+      if ($code -eq 429 -and $attempt -lt 6) {
+        $wait = [math]::Min(16, [math]::Pow(2, $attempt))  # 2,4,8,16,16
+        Write-Host ("  (429 trop d'appels - pause {0}s puis on reessaie...)" -f $wait) -ForegroundColor Yellow
+        Start-Sleep -Seconds $wait
+        continue
+      }
+      throw
+    }
+  }
 }
 
 try {
@@ -86,17 +107,25 @@ try {
   if (-not $orderId) { throw "Echec creation commande (verifie token / permissions Orders)." }
   Write-Host ("Commande creee : {0}" -f $orderId)
 
-  # 2) Banniere bien visible en haut des articles
-  Invoke-Clover -Method Post -Path "/v3/merchants/$MID/orders/$orderId/line_items" `
-    -BodyObj @{ name = ">>> DOORDASH RAMASSAGE - $Qty X TOUT <<<"; price = 0 } | Out-Null
-
-  # 3) Qty exemplaires de chaque article
+  # 2) Construire toutes les lignes (banniere + Qty x chaque article)
+  $lines = New-Object System.Collections.ArrayList
+  [void]$lines.Add(@{ name = ">>> DOORDASH RAMASSAGE - $Qty X TOUT <<<"; price = 0 })
   foreach ($it in $Items) {
-    for ($i = 1; $i -le $Qty; $i++) {
-      Invoke-Clover -Method Post -Path "/v3/merchants/$MID/orders/$orderId/line_items" `
-        -BodyObj @{ name = $it; price = 0 } | Out-Null
-    }
-    Write-Host ("  + {0} x {1}" -f $Qty, $it)
+    for ($i = 1; $i -le $Qty; $i++) { [void]$lines.Add(@{ name = $it; price = 0 }) }
+  }
+  Write-Host ("Ajout de {0} lignes par lots (anti rate-limit)..." -f $lines.Count)
+
+  # 3) Envoi par lots via bulk_line_items (1 appel pour ~25 lignes)
+  $batchSize = 25
+  for ($start = 0; $start -lt $lines.Count; $start += $batchSize) {
+    $end   = [math]::Min($start + $batchSize, $lines.Count) - 1
+    $batch = @($lines[$start..$end])
+    $itemsJson = ($batch | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 3 }) -join ","
+    $json = '{"items":[' + $itemsJson + ']}'
+    Invoke-Clover -Method Post -Path "/v3/merchants/$MID/orders/$orderId/bulk_line_items" `
+      -Json $json | Out-Null
+    Write-Host ("  ... {0}/{1} lignes ajoutees" -f ($end + 1), $lines.Count)
+    Start-Sleep -Milliseconds 500
   }
 
   # 4) Impression
