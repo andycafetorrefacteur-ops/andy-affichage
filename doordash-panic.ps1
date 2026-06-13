@@ -35,7 +35,17 @@ if (-not $Items -or $Items.Count -eq 0) {
     "Chai latte - GRAND - lait d'avoine - sirop citrouille",
     "Bubble Tea - mangue - bulles tapioca - peu de glace",
     "Bagel - sesame - fromage a la creme + bacon + oeuf",
-    "Americano - allonge - DECA - 2 cremes"
+    "Americano - allonge - DECA - 2 cremes",
+    "Espresso - double - DECA",
+    "Macchiato - caramel - extra mousse",
+    "Chemex - infusion lente - pour 2",
+    "Flash Brew - sirop vanille - glace extra",
+    "Long black - allonge - sans sucre",
+    "Chocolat chaud - lait d'avoine - creme fouettee - guimauves",
+    "Croissant - rechauffe - beurre + confiture",
+    "Latte glace St-Valentin - lait d'amande - extra sirop",
+    "Le donatello - lait de soya - extra",
+    "Mini Beignets Pistache - douzaine - extra sucre"
   )
 }
 # -----------------------------------------
