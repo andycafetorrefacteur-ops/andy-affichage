@@ -9,7 +9,7 @@
     .\doordash-panic.ps1 -Cleanup <orderId>    # supprime la commande creee
 #>
 param(
-  [int]$Qty = 15,
+  [int]$Qty = 6,
   [string[]]$Items,
   [string]$Cleanup
 )
